@@ -17,7 +17,12 @@ public class Player {
      * check the assigment text for more details on winning condition
      */
     public boolean checkWinning() {
-        return false;
+        for(int i = 0 ; i < playerTiles.length - 1; i++){
+            if(playerTiles[i + 1].getValue() - playerTiles[i].getValue() >  1 ){
+                return false;
+            }
+        }
+        return true;
     }
 
     /*
@@ -27,8 +32,24 @@ public class Player {
      * and also for determining the winner if tile stack has no tiles
      */
     public int findLongestChain() {
-        int longestChain = 0;
-
+        int longestChain = 1;// chain length can be at least one.
+        int curLen = 1;
+        
+        for(int i = 0 ; i < playerTiles.length - 1; i++){
+            if(playerTiles[i + 1].getValue() - playerTiles[i].getValue() == 1 ){
+                curLen++;
+            }
+            else if(curLen > longestChain){
+                longestChain = curLen;
+                curLen = 1;
+            }
+            else{
+                curLen = 1;
+            }
+        }
+        if(curLen > longestChain){
+            longestChain = curLen;
+        }
         return longestChain;
     }
 
@@ -36,7 +57,14 @@ public class Player {
      * TODO: removes and returns the tile in given index position
      */
     public Tile getAndRemoveTile(int index) {
-        return null;
+         Tile removed = playerTiles[index];
+
+        for(int i = index; i < playerTiles.length - 1 ; i++){
+            playerTiles[i] = playerTiles[i + 1];
+        }
+        playerTiles[playerTiles.length - 1] = null;
+
+        return removed;
     }
 
     /*
@@ -45,7 +73,43 @@ public class Player {
      * then shift the remaining tiles to the right by one
      */
     public void addTile(Tile t) {
+        boolean posFound = false;
+       int searchVal = t.getValue();
+       int newPos = 0;
+       int average = 0;
+       int maxVal = playerTiles[playerTiles.length - 1].getValue();
+       int maxIndex = playerTiles.length - 1;
+       int minVal = playerTiles[0].getValue();
+       int minIndex = 0;
 
+       //find the index of place to be added.
+       while(!posFound){
+            if(searchVal > minVal && searchVal < maxVal){
+                average = (minIndex + maxIndex) / 2;
+                if(searchVal >= playerTiles[average].getValue()){
+                    minVal = playerTiles[average].getValue();
+                    minIndex = average;
+                }
+                else{
+                    maxVal = playerTiles[average].getValue();
+                    maxIndex = average;
+                }
+            }
+            if(maxVal <= searchVal || (maxIndex - minIndex == 1)){
+                newPos = maxIndex;
+                posFound = true;
+            }
+            if(minVal >= searchVal){
+                newPos = minIndex;
+                posFound = true;
+            }
+       }
+        //shift the tiles positon to right
+       for(int i = playerTiles.length - 1; i > newPos ; i--){
+            playerTiles[i] = playerTiles[i - 1];
+       }
+
+       playerTiles[newPos] = t;
     }
 
     /*
